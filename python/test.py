@@ -4,11 +4,17 @@ RED = "\033[0;31m"
 
 FATAL = True
 
+def Green(s):
+    return GREEN + s + COLOUR_RESET
+
+def Red(s):
+    return RED + s + COLOUR_RESET
+
 def Pass(description):
-    print(GREEN + 'Passed:' + COLOUR_RESET + ' ' + description)
+    print(Green('Passed:') + ' ' + description)
 
 def PrintFail(description):
-    print(RED + 'Fail:' + COLOUR_RESET)
+    print(Red('Fail:'))
     print('\t' + description)
 
 def Fail(a, b, description):
@@ -64,15 +70,3 @@ def EXPECT_EQ_LIST(a, b, description):
         if a[index] is not b[index]:
             return ListValueFail(a, b, index, description)
     Pass(description)
-
-
-EXPECT_EQ(1,2,'FAIL TEST')
-EXPECT_EQ(1,1,'PASS TEST')
-EXPECT_TRUE(False, 'ex true fail')
-EXPECT_TRUE(True, 'ex true pass')
-EXPECT_EQ_LIST([3], [1], 'TYPE fail')
-EXPECT_EQ_LIST([1,2,3],[3,2,1], 'LIST fail')
-EXPECT_EQ_LIST([1,2,3],[1,2,3], 'list pass')
-ASSERT_TRUE(False, 'assert true error')
-ASSERT_EQ(1,2, 'assertion error')
-ASSERT_EQ(1,2, 'this should not run')
