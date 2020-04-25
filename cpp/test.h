@@ -1,43 +1,96 @@
-#ifndef TESTING_FRAMEWORK_H
-#define TESTING_FRAMEWORK_H
-
 #include <iostream>
 #include <vector>
+#include <string>
+#include <typeinfo>
 
-class Test
+#define COLOUR_RESET  "\x1b[0m";
+#define GREEN "\x1b[42m";
+#define RED "\033[0;31m";    
+
+#define FATAL 1
+
+namespace Test
 {
-public:
-    // Declare colour strings for console output.
-    static const std::string COLOUR_RESET;
-    static const std::string GREEN;
-    static const std::string RED;
+	std::string Green(std::string& s) 
+	{
+		return GREEN + s + COLOUR_RESET;
+	}
 
-    template <class T>
-    static void EXPECT_EQ(const T& actual, const T& expected, const std::string& description)
-    {
-        if (actual == expected)
-        {
-            std::cout << GREEN << "PASS" << COLOUR_RESET << " -> " << description << std::endl;
-        }
-        else
-        {
-            std::cout << RED << "FAIL" << COLOUR_RESET << std::endl;
-            std::cout << "\tFailed test: " << description << std::endl;
+	std::string Red(std::string& s)
+	{
+		return RED + s + COLOUR_RESET;
+	}
+
+	void PrintPass(const std::string& description)
+	{
+		std::cout << Green("PASS:") << " " << description << std::endl;
+	}
+
+	template<class T> 
+	void PrintFail(const T& actual, const T& expected, const std::string& description, const std::string& error_type) 
+	{
+	
+            std::cout << Red("FAIL") << " (" << error_type << ")" << std::endl;
+            std::cout << "\t" << description << std::endl;
             std::cout << "\tExpected: " << expected << std::endl;
             std::cout << "\tActual: " << actual << std::endl;
-        }
-    }
-
-    // TODO: Would be nice to implement the test framework like this.
-    // Avoids having to write a test and then explicitly call it from main()
-    static void RunAllTests()
+	}
+	template <class T1, class T2>
+	void EXPECT_EQ(const T1& actual, const T2& expected, const std::string& description, bool fatal = false)
     {
-        for (auto testFunction : testFunctions) testFunction();
+	T1 expected_same_type;
+	if (typeid(actual) != typeid(expected)) {
+		expected_same_type = std::static_cast<T1>(expected); } else {
+			expected_same_type = expected;
+		}
+        if (actual == expected_same_type) return PrintPass(description);
+	PrintFail(actual, expected_same_type, description);
+	if (fatal) exit(1);
     }
-    static std::vector<void(*)()> testFunctions;
-};
-#endif // TESTING_FRAMEWORK_H
 
-const std::string Test::COLOUR_RESET =  "\x1b[0m";
-const std::string Test::GREEN = "\x1b[42m";
-const std::string Test::RED = "\033[0;31m";
+	template <class T>
+	void ASSERT_EQ(const T& actual, const T& expected, const std::string& description) {
+		EXPECT_EQ(actual, expected, description, FATAL);
+	}
+
+	void EXPECT_TRUE(bool actual, const std::string& description, bool fatal = false) 
+	{
+		if (actual) return PrintPass(description);
+		PrintFail(actual, true, description);
+		if (fatal) exit(1);
+	}
+
+	void ASSERT_TRUE(bool actual, const std::string& description) 
+	{
+		EXPECT_TRUE(actual, description, FATAL);
+	}
+
+	void SizeError(size_t actual, size_t expected, const std::string& description) 
+	{
+		PrintFail(actual, expected, description, "Vector size error");
+	}
+
+	template<class T>
+	void VectorElementError(const T& actual, const T& expected, size_t index, const std::string& description)
+	{
+		PrintFail(actual, expected, description, "Vector element error at index " + std::to_string(index));
+	}
+
+
+	template<class T>
+	EXPECT_VECTOR_EQ(const std::vector<T>& actual, const std::vector<T>& expected, const std::string& description) 
+	{
+		if (actual.size() != expected.size())
+			return SizeError(actual.size(), expected.size(), description);
+
+
+		for (size_t i = 0; i < actual.size(); ++i) 
+		{
+			if (actual[i] != expected[i])
+				return VectorElementError(actual[i], expected[i], i, description);
+		}
+
+		PrintPass(description);
+	}
+
+}
