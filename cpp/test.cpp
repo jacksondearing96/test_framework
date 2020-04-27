@@ -1,22 +1,20 @@
-#include <iostream>
+#include "test.h"
 
-// Declare colour strings for console output
-std::string colourReset="\x1b[0m";
-std::string green="\x1b[42m";
-std::string red="\033[0;31m";
+#include <vector>
 
-template <class T>
-void COMPARE(T actual, T expected, std::string description)
-{
-    if (actual == expected)
-    {
-        std::cout << green << "PASS" << colourReset << " -> " << description << std::endl;
-    }
-    else
-    {
-        std::cout << red << "FAIL" << colourReset << std::endl;
-        std::cout << "\tFailed test: " << description << std::endl;
-        std::cout << "\tExpected: " << expected << std::endl;
-        std::cout << "\tActual: " << actual << std::endl;
-    }
+int main() {
+
+	Test::EXPECT_EQ(1,1,"basic pass");
+	Test::EXPECT_EQ(1,0,"basic fail");
+	Test::EXPECT_EQ("hello", "hello", "string pass");
+	std::string HELLO = "HELLO";
+	Test::EXPECT_EQ("HELLO", HELLO, "string using variable pass");
+	Test::EXPECT_EQ(1, 1.000, "int and float pass");
+	Test::EXPECT_EQ(1.0001, 1, "int and float fail");
+	Test::EXPECT_EQ(1, 1.0001, "int and float fail");
+	std::vector<int> exp = {1,2};
+	Test::EXPECT_VECTOR_EQ(exp, {1,2}, "vector pass");
+	Test::EXPECT_VECTOR_EQ(exp, {1,2,3}, "vector size fail");
+	Test::EXPECT_VECTOR_EQ(exp, {1,3}, "vector value fail");
+	return 0;
 }

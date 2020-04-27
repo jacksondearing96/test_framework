@@ -3,20 +3,20 @@
 #include <string>
 #include <typeinfo>
 
-#define COLOUR_RESET  "\x1b[0m";
-#define GREEN "\x1b[42m";
-#define RED "\033[0;31m";    
+#define COLOUR_RESET "\x1b[0m"
+#define GREEN "\x1b[42m"
+#define RED "\033[0;31m"
 
 #define FATAL 1
 
 namespace Test
 {
-	std::string Green(std::string& s) 
+	std::string Green(std::string s) 
 	{
 		return GREEN + s + COLOUR_RESET;
 	}
 
-	std::string Red(std::string& s)
+	std::string Red(std::string s)
 	{
 		return RED + s + COLOUR_RESET;
 	}
@@ -26,25 +26,24 @@ namespace Test
 		std::cout << Green("PASS:") << " " << description << std::endl;
 	}
 
-	template<class T> 
-	void PrintFail(const T& actual, const T& expected, const std::string& description, const std::string& error_type) 
+	template<class T, class Y> 
+	void PrintFail(const T& actual, const Y& expected, const std::string& description, const std::string& error_type = "") 
 	{
 	
-            std::cout << Red("FAIL") << " (" << error_type << ")" << std::endl;
+            std::cout << Red("FAIL");
+	    if (!error_type.empty())
+		    std::cout << " (" << error_type << ")";
+	    std::cout << std::endl;
+
             std::cout << "\t" << description << std::endl;
             std::cout << "\tExpected: " << expected << std::endl;
             std::cout << "\tActual: " << actual << std::endl;
 	}
 	template <class T1, class T2>
 	void EXPECT_EQ(const T1& actual, const T2& expected, const std::string& description, bool fatal = false)
-    {
-	T1 expected_same_type;
-	if (typeid(actual) != typeid(expected)) {
-		expected_same_type = std::static_cast<T1>(expected); } else {
-			expected_same_type = expected;
-		}
-        if (actual == expected_same_type) return PrintPass(description);
-	PrintFail(actual, expected_same_type, description);
+    {	
+        if (actual == expected) return PrintPass(description);
+	PrintFail(actual, expected, description);
 	if (fatal) exit(1);
     }
 
@@ -78,7 +77,7 @@ namespace Test
 
 
 	template<class T>
-	EXPECT_VECTOR_EQ(const std::vector<T>& actual, const std::vector<T>& expected, const std::string& description) 
+	void EXPECT_VECTOR_EQ(const std::vector<T>& actual, const std::vector<T> expected, const std::string& description) 
 	{
 		if (actual.size() != expected.size())
 			return SizeError(actual.size(), expected.size(), description);
