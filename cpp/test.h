@@ -1,3 +1,12 @@
+// Minimalistic unit testing framework.
+// 
+// Available methods:
+// Test::EXPECT_EQ(T actual, T expected, string description)
+// Test::ASSERT_EQ(T actual, T expected, string description)
+// Test::EXPECT_TRUE(bool actual, string description)
+// Test::ASSERT_TRUE(bool actual, string description)
+// Test::EXPECT_VECTOR_EQ(vector<T> actual, vector<T> expected, string description)
+
 #include <iostream>
 #include <vector>
 #include <string>
